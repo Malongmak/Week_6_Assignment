@@ -1,0 +1,46 @@
+#include "patient_heap.h"
+
+// Function to add a patient and update the heap
+void addPatient(MaxHeap* heap, int id, const char* name, int severity) {
+    insert(heap, createPatient(id, name, severity));
+}
+
+int main() {
+    MaxHeap* heap = createHeap();
+
+    // Adding patients to the emergency room
+    printf("Adding patients to the emergency room...\n");
+    addPatient(heap, 1, "James", 5);
+    addPatient(heap, 2, "John", 7);
+    addPatient(heap, 3, "Daniela", 2);
+    addPatient(heap, 4, "Maria", 10);
+    addPatient(heap, 5, "Jacob", 6);
+
+    // Display current patients
+    printf("\nCurrent patients waiting for treatment:\n");
+    displayPatients(heap);
+
+    // Treat the next patient
+    printf("\nNext patient to be treated...\n");
+    Patient* treatedPatient = extractMax(heap);
+    if (treatedPatient) {
+        printf("Treating patient: %s with severity %d\n", treatedPatient->name, treatedPatient->severity);
+        free(treatedPatient); 
+    }
+
+    // Update patient severity
+    printf("\nUpdating severity of patient ID 2 (John) to 8...\n");
+    updateSeverity(heap, 2, 8);
+    
+    // Display updated patients
+    printf("\nUpdated patients waiting for treatment:\n");
+    displayPatients(heap);
+
+    // Clean up remaining patients
+    while (heap->size > 0) {
+        free(extractMax(heap));
+    }
+    free(heap); 
+
+    return 0;
+}

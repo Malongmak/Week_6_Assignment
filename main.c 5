@@ -1,0 +1,93 @@
+#include "social_network.h"
+
+// Create a new social network
+SocialNetwork* createNetwork() {
+    SocialNetwork* network = malloc(sizeof(SocialNetwork));
+    network->userCount = 0;
+    return network;
+}
+
+// Create and add a user
+void addUser(SocialNetwork* network, const char* name) {
+    if (network->userCount < MAX_USERS) {
+        User* user = malloc(sizeof(User));
+        user->id = network->userCount;
+        strncpy(user->name, name, MAX_NAME_LEN);
+        user->friendCount = 0;
+        network->users[network->userCount++] = user;
+    } else {
+        printf("Maximum user limit reached.\n");
+    }
+}
+
+// Add a connection between two users
+void addConnection(SocialNetwork* network, int id1, int id2) {
+    if (id1 < network->userCount && id2 < network->userCount && id1 != id2) {
+        User* u1 = network->users[id1], *u2 = network->users[id2];
+        u1->friends[u1->friendCount++] = u2;
+        u2->friends[u2->friendCount++] = u1;
+    }
+}
+
+// Print the adjacency list
+void printAdjacencyList(SocialNetwork* network) {
+    for (int i = 0; i < network->userCount; i++) {
+        printf("%s: ", network->users[i]->name);
+        for (int j = 0; j < network->users[i]->friendCount; j++) {
+            printf("%s ", network->users[i]->friends[j]->name);
+        }
+        printf("\n");
+    }
+}
+
+// DFS for recommendations
+void dfs(User* user, int visited[], User* recommendations[], int* recCount) {
+    visited[user->id] = 1;
+    for (int i = 0; i < user->friendCount; i++) {
+        for (int j = 0; j < user->friends[i]->friendCount; j++) {
+            User* potential = user->friends[i]->friends[j];
+            if (!visited[potential->id] && potential != user) {
+                recommendations[(*recCount)++] = potential;
+            }
+        }
+        if (!visited[user->friends[i]->id]) {
+            dfs(user->friends[i], visited, recommendations, recCount);
+        }
+    }
+}
+
+// Recommend connections for a specific user
+void recommendConnections(SocialNetwork* network, int userId) {
+    User* user = network->users[userId];
+    int visited[MAX_USERS] = {0};
+    User* recommendations[MAX_USERS];
+    int recCount = 0;
+
+    dfs(user, visited, recommendations, &recCount);
+    printf("\nRecommendations for %s:\n", user->name);
+    for (int i = 0; i < recCount; i++) {
+        printf("- %s\n", recommendations[i]->name);
+    }
+}
+
+int main() {
+    SocialNetwork* network = createNetwork();
+    const char* names[] = {"Samuel", "Magot", "Joshua", "David", "Ezekiel"};
+
+    // Add users and connections
+    for (int i = 0; i < 5; i++) addUser(network, names[i]);
+    addConnection(network, 0, 1);
+    addConnection(network, 0, 2);
+    addConnection(network, 1, 2);
+    addConnection(network, 2, 3);
+    addConnection(network, 3, 4);
+
+    // Print adjacency list and recommendations
+    printf("Adjacency List Representation:\n");
+    printAdjacencyList(network);
+    for (int i = 0; i < network->userCount; i++) {
+        recommendConnections(network, i);
+    }
+
+    return 0;
+}

@@ -1,0 +1,114 @@
+#include "product_tree.h"
+
+// Function to create a new node
+Node* createNode(Product product) {
+    Node* newNode = (Node*)malloc(sizeof(Node));
+    newNode->product = product;
+    newNode->left = NULL;
+    newNode->right = NULL;
+    return newNode;
+}
+
+// Function to insert products into the tree
+Node* insert(Node* root, Product product) {
+    if (root == NULL) {
+        return createNode(product);
+    }
+    if (strcmp(product.name, root->product.name) < 0) {
+        root->left = insert(root->left, product);
+    } else if (strcmp(product.name, root->product.name) > 0) {
+        root->right = insert(root->right, product);
+    }
+    return root;
+}
+
+// Function to search for a product
+Product* search(Node* root, const char* name) {
+    if (root == NULL) return NULL;
+    if (strcmp(name, root->product.name) == 0) return &root->product;
+    if (strcmp(name, root->product.name) < 0) return search(root->left, name);
+    return search(root->right, name);
+}
+
+// Function to update the price and quantity of a product
+int updateProduct(Node* root, const char* name, float price, int quantity) {
+    Product* product = search(root, name);
+    if (product != NULL) {
+        if (price >= 0) product->price = price;
+        if (quantity >= 0) product->quantity = quantity;
+        return 1; // Updated successfully
+    }
+    return 0; // Return 0 if product not found
+}
+
+// Function for in-order traversal to display products in sorted order
+void displaySorted(Node* root) {
+    if (root != NULL) {
+        displaySorted(root->left);
+        printf("ID: %d, Name: %s, Price: %.2f, Quantity: %d\n", 
+               root->product.product_id, root->product.name, 
+               root->product.price, root->product.quantity);
+        displaySorted(root->right);
+    }
+}
+
+// Function to track out-of-stock products
+void trackOutOfStock(Node* root) {
+    if (root != NULL) {
+        trackOutOfStock(root->left);
+        if (root->product.quantity == 0) {
+            printf("Out of Stock - ID: %d, Name: %s\n", 
+                   root->product.product_id, root->product.name);
+        }
+        trackOutOfStock(root->right);
+    }
+}
+
+// Main function to run the program
+int main() {
+    Node* root = NULL;
+
+    // Product data
+    Product p1 = {1, "Laptop", 999.99, 10};
+    Product p2 = {2, "Mouse", 25.50, 0};
+    Product p3 = {3, "Keyboard", 45.00, 5};
+    Product p4 = {4, "Monitor", 199.99, 0};
+    Product p5 = {5, "Headphones", 49.99, 0};
+    Product p6 = {6, "Mousepad", 9.99, 0};
+
+    // Insert products into the tree
+    root = insert(root, p1);
+    root = insert(root, p2);
+    root = insert(root, p3);
+    root = insert(root, p4);
+
+    // Searching for a product
+    char searchName[] = "Mouse";
+    Product* foundProduct = search(root, searchName);
+    if (foundProduct) {
+        printf("Found Product: ID: %d, Name: %s, Price: %.2f, Quantity: %d\n", 
+               foundProduct->product_id, foundProduct->name, 
+               foundProduct->price, foundProduct->quantity);
+    } else {
+        printf("Product '%s' not found.\n", searchName);
+    }
+
+    // Update product details
+    if (updateProduct(root, "Keyboard", 40.00, 3)) {
+        printf("Product 'Keyboard' updated successfully.\n");
+    } else {
+        printf("Product 'Keyboard' not found for update.\n");
+    }
+
+    // Display all products in sorted order
+    printf("\nSorted Products:\n");
+    displaySorted(root);
+
+    // Track out-of-stock products
+    printf("\nOut of Stock Products:\n");
+    trackOutOfStock(root);
+
+    // Clean up allocated memory (not shown here for simplicity)
+
+    return 0;
+}

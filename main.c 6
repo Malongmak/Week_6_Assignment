@@ -1,16 +1,6 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h> // For sleep function
+#include "playlist.h"
 
-// Define the song structure
-typedef struct Song {
-    char name[100];
-    int duration; // Duration in seconds
-    struct Song* next;
-} Song;
-
-// Function to create a new song
+// Create a new song
 Song* createSong(const char* name, int duration) {
     Song* newSong = (Song*)malloc(sizeof(Song));
     if (!newSong) {
@@ -24,7 +14,7 @@ Song* createSong(const char* name, int duration) {
     return newSong;
 }
 
-// function to append a song to the playlist
+// Append a song to the playlist
 void appendSong(Song** head, const char* name, int duration) {
     Song* newSong = createSong(name, duration);
     if (*head == NULL) {
@@ -38,7 +28,7 @@ void appendSong(Song** head, const char* name, int duration) {
     }
 }
 
-// Function to play the playlist
+// Play the playlist
 void playPlaylist(Song* head) {
     Song* current = head;
     while (current != NULL) {
@@ -49,7 +39,7 @@ void playPlaylist(Song* head) {
     printf("Playlist finished!\n");
 }
 
-// Function to free the memory of the playlist
+// Free the memory of the playlist
 void freePlaylist(Song* head) {
     Song* current = head;
     while (current != NULL) {
@@ -62,7 +52,7 @@ void freePlaylist(Song* head) {
 int main() {
     Song* playlist = NULL;
 
-    // Add some songs to the playlist
+    // Add songs to the playlist
     appendSong(&playlist, "Mama mira", 3);
     appendSong(&playlist, "Nmempata yesu", 15);
     appendSong(&playlist, "Otumwa", 18);
@@ -71,10 +61,10 @@ int main() {
     appendSong(&playlist, "Marry", 14);
     appendSong(&playlist, "Kwa kwa", 17);
 
-    // function to play the playlist
+    // Play the playlist
     playPlaylist(playlist);
 
-    // function to free the memory
+    // Free the memory
     freePlaylist(playlist);
 
     return 0;
